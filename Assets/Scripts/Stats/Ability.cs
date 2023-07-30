@@ -1,9 +1,15 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-public abstract class Ability : StatsUpgrade
+public abstract class Ability : StatsUpgrade, IInitialize<Unit>
 {
-    [SerializeField] private InputActionReference activateAction;
-    [SerializeField] private float abilityCooldown;
-    [SerializeField] private float abilityDuration;
+    public bool IsActive { get; private set; } = false;
+
+    [SerializeField] private float duration;
+    [SerializeField] private float cooldown;
+
+    private Unit _unit;
+
+
+    public void Initialize(Unit instance)
+        => _unit = instance;
 }

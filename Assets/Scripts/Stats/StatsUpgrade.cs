@@ -5,8 +5,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName ="Stats/Upgrade")]
 public class StatsUpgrade : SerializedScriptableObject
 {
-    [SerializeField] protected Dictionary<StatType, UpgradeData> statsToUpgrade = new();
+    [SerializeField]
+    protected Dictionary<StatType, UpgradeData> upgradesToApply = new();
 
-    public bool TryGetUpgradeValue(StatType statType, out UpgradeData data)
-        => statsToUpgrade.TryGetValue(statType, out data);
+    public IReadOnlyDictionary<StatType, UpgradeData> UpgradesToApply
+        => upgradesToApply;
 }

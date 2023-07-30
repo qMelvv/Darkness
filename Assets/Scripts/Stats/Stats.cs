@@ -2,15 +2,18 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 [CreateAssetMenu(menuName ="Stats/Stats")]
-public class Stats : SerializedScriptableObject
+public class Stats : SerializedScriptableObject, IInitialize<Unit>
 {
     [SerializeField] private Dictionary<StatType, float> baseStats = new();
-    [SerializeField] private List<StatsUpgrade> _appliedUpgrades = new();
 
     private Dictionary<StatType, float> _upgradedStats = new();
+
+    private List<StatsUpgrade> _appliedStaticUpgrades = new();
+    private List<Ability> _abilities;
+
+    private Unit _unit;
 
 
     public static float GetUpgradedValue(UpgradeData upgradeData, float value, float baseValue)
@@ -25,8 +28,7 @@ public class Stats : SerializedScriptableObject
         };
     }
 
-    [Button]
-    public void RecalculateUpgradedStats()
+    private void RecalculateUpgradedStats()
     {
         _upgradedStats.Clear();
 
@@ -35,10 +37,11 @@ public class Stats : SerializedScriptableObject
             float baseValue = stat.Value;
             float upgradedValue = baseValue;
 
-            foreach (var upgrade in _appliedUpgrades)
+            foreach (var upgrade in _appliedStaticUpgrades)
             {
                 UpgradeData upgradeData;
-                if (!upgrade.TryGetUpgradeValue(stat.Key, out upgradeData)) continue;
+                if (!upgrade.UpgradesToApply.TryGetValue(stat.Key, out upgradeData))
+                    continue;
 
                 upgradedValue = GetUpgradedValue(upgradeData, upgradedValue, baseValue);
             }
@@ -46,10 +49,21 @@ public class Stats : SerializedScriptableObject
             _upgradedStats.Add(stat.Key, upgradedValue);
         }
     }
-}
 
-public enum StatType
-{
-    MaxHealth,
-    Speed,
+    public void Initialize(Unit instance)
+        => _unit = instance;
+
+    public void UnlockAbility(Ability ability)
+    {
+        ability = Instantiate(ability);
+        ability.Initialize(_unit);
+
+        _abilities.Add(ability);
+    }
+
+    public void UnlockUpgrade(StatsUpgrade upgrade)
+    {
+        _appliedStaticUpgrades.Add(upgrade);
+        RecalculateUpgradedStats();
+    }
 }

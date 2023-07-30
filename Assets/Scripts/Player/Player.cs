@@ -2,7 +2,7 @@ using UnityEngine;
 using Zenject;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerMovement : MonoBehaviour
+public class Player : DamageableUnit, IPlayerDamageable
 {
     [SerializeField] private float movementSmoothTime = 0.05f;
     [SerializeField] private float speed = 5;
@@ -14,8 +14,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 _smoothedMoveInputVelocity;
     private Vector2 _smoothedMoveInputNormalized;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         _rigidbody2d = GetComponent<Rigidbody2D>();
     }
 
